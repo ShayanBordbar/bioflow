@@ -1,0 +1,116 @@
+name: CI
+
+# A single workflow file may declare only one `on:` block, so this is the union
+# of every trigger the three tiers need. Each job gates itself with `if:` to the
+# events it actually belongs to.
+on:
+  push:
+  pull_request:
+  schedule:
+    # Nightly at 03:00 UTC.
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Tier 1 — lint, types, and the unit + contract tests. Runs on every push and
+  # pull request and is the gate for merge.
+  fast:
+    name: fast (lint, types, unit + contract)
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --dev
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Format check
+        run: uv run ruff format --check .
+
+      - name: Type check
+        run: uv run mypy src
+
+      - name: Unit and contract tests
+        run: >-
+          uv run pytest -m "unit or contract"
+          --cov=bioflow
+          --cov-report=xml
+          --cov-fail-under=80
+
+  # Tier 3 — the real external tooling (Docker, Nextflow, Snakemake, torch).
+  # Never runs on pull_request, so it is structurally incapable of being a merge
+  # gate while still failing loudly on its own schedule.
+  integration:
+    name: integration (nightly)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    continue-on-error: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      # pytest exits 5 when it collects nothing, which would fail the nightly
+      # for as long as tests/integration/ is empty. Treat only that code as
+      # success; every other non-zero code still fails the job.
+      - name: Integration tests
+        run: |
+          set +e
+          uv run pytest -m integration
+          code=$?
+          if [ "$code" -eq 5 ]; then
+            echo "No integration tests collected yet; nothing to run."
+            exit 0
+          fi
+          exit "$code"
+
+  # Documentation invariants from CLAUDE.md, enforced on pull requests.
+  docs:
+    name: docs (ADR + README hygiene)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Every ADR declares a Status
+        run: |
+          shopt -s nullglob
+          fail=0
+          for f in docs/decisions/*.md; do
+            if ! grep -qE '^##[[:space:]]+Status' "$f"; then
+              echo "::error file=$f::ADR is missing a '## Status' line"
+              fail=1
+            fi
+          done
+          exit "$fail"
+
+      - name: README contains no TODO
+        run: |
+          if grep -n "TODO" README.md; then
+            echo "::error file=README.md::README.md contains the string TODO"
+            exit 1
+          fi
