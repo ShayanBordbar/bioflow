@@ -39,3 +39,5 @@ integration spikes pin their dependencies.
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+<!-- TODO: temporary marker to verify the README check -->
