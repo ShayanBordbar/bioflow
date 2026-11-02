@@ -10,6 +10,7 @@ plane — BioFlow orchestrates established tools rather than reimplementing them
 
 > **Status:** pre-alpha. This is the repository scaffold; no capabilities are
 > implemented yet.
+> The implementation was generated with AI coding assistants from a specification and design review I directed. The design rationale is in docs/decisions/
 
 ## Development
 
