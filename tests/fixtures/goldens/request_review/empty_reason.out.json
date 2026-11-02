@@ -1,0 +1,21 @@
+{
+  "ok": false,
+  "output": null,
+  "error": {
+    "error_code": "VALIDATION_FAILED",
+    "message": "invalid arguments for 'request_review': reason: String should have at least 1 character",
+    "remediation": "Correct the listed fields and call the tool again.",
+    "details": {
+      "tool": "request_review",
+      "errors": [
+        {
+          "loc": "reason",
+          "msg": "String should have at least 1 character",
+          "type": "string_too_short"
+        }
+      ]
+    },
+    "retryable": false,
+    "raised_by": "bioflow.core.registry"
+  }
+}

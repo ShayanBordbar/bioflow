@@ -1,0 +1,11 @@
+# Dependencies for the isolated sequence sidecar.
+#
+# This file exists so the sidecar's environment resolves *independently* of the
+# orchestrator's. Nothing here may appear in the root pyproject.toml, and nothing from
+# the root pyproject.toml may appear here -- if the two ever needed to agree on a version
+# of anything, the process boundary would have stopped buying us anything.
+#
+# Empty of third-party packages today: the only op is `ping`, which reports what is
+# installed without importing it, so the standard library is sufficient. torch, gReLU,
+# and Polygraph arrive with the first op that needs them, pinned exactly, and their
+# resolution problem stays entirely inside this file.

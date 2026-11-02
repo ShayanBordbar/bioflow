@@ -1,0 +1,14 @@
+{
+  "ok": false,
+  "output": null,
+  "error": {
+    "error_code": "NOT_FOUND",
+    "message": "no artifact art_000000000000 in this run",
+    "remediation": "Check the identifier, or list the run's artifacts first.",
+    "details": {
+      "artifact_id": "art_000000000000"
+    },
+    "retryable": false,
+    "raised_by": "echo_artifact"
+  }
+}

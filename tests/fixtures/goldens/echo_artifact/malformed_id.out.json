@@ -1,0 +1,21 @@
+{
+  "ok": false,
+  "output": null,
+  "error": {
+    "error_code": "VALIDATION_FAILED",
+    "message": "invalid arguments for 'echo_artifact': artifact_id: String should match pattern '^art_[0-9a-f]{12}$'",
+    "remediation": "Correct the listed fields and call the tool again.",
+    "details": {
+      "tool": "echo_artifact",
+      "errors": [
+        {
+          "loc": "artifact_id",
+          "msg": "String should match pattern '^art_[0-9a-f]{12}$'",
+          "type": "string_pattern_mismatch"
+        }
+      ]
+    },
+    "retryable": false,
+    "raised_by": "bioflow.core.registry"
+  }
+}

@@ -1,0 +1,311 @@
+{
+  "$defs": {
+    "ArtifactRef": {
+      "additionalProperties": false,
+      "description": "A content-addressed handle to something a tool produced.\n\n``produced_by`` follows the convention ``name@version`` (for example\n``kallisto@0.50.1``). It is documented rather than pattern-enforced because\nupstream tools report version strings in whatever shape they like.",
+      "properties": {
+        "artifact_id": {
+          "pattern": "^art_[0-9a-f]{12}$",
+          "title": "Artifact Id",
+          "type": "string"
+        },
+        "artifact_type": {
+          "$ref": "#/$defs/ArtifactType"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "media_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Media Type"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JSONValue"
+          },
+          "title": "Metadata",
+          "type": "object"
+        },
+        "produced_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Produced By"
+        },
+        "run_id": {
+          "anyOf": [
+            {
+              "pattern": "^run_[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Run Id"
+        },
+        "schema_version": {
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sha256"
+        },
+        "size_bytes": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Size Bytes"
+        },
+        "uri": {
+          "minLength": 1,
+          "title": "Uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "artifact_type",
+        "uri",
+        "created_at"
+      ],
+      "title": "ArtifactRef",
+      "type": "object"
+    },
+    "ArtifactType": {
+      "description": "The closed set of artifact shapes BioFlow knows how to move around.",
+      "enum": [
+        "fasta",
+        "fastq",
+        "tsv",
+        "csv",
+        "json",
+        "yaml",
+        "html",
+        "parquet",
+        "checkpoint",
+        "log",
+        "directory",
+        "other"
+      ],
+      "title": "ArtifactType",
+      "type": "string"
+    },
+    "ErrorCode": {
+      "description": "Closed failure taxonomy. Every error crossing a boundary maps to one member.",
+      "enum": [
+        "VALIDATION_FAILED",
+        "MISSING_INPUT",
+        "AMBIGUOUS_INPUT",
+        "UNSUPPORTED_ASSAY",
+        "OUT_OF_DOMAIN",
+        "EXTERNAL_TOOL_FAILED",
+        "TIMEOUT",
+        "RESOURCE_LIMIT",
+        "NOT_FOUND",
+        "RATE_LIMITED",
+        "SCHEMA_MISMATCH",
+        "INTERNAL"
+      ],
+      "title": "ErrorCode",
+      "type": "string"
+    },
+    "JSONValue": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "items": {
+            "$ref": "#/$defs/JSONValue"
+          },
+          "type": "array"
+        },
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/JSONValue"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "SidecarStatus": {
+      "description": "Whether the sidecar completed its op.",
+      "enum": [
+        "ok",
+        "error"
+      ],
+      "title": "SidecarStatus",
+      "type": "string"
+    },
+    "StructuredError": {
+      "additionalProperties": false,
+      "description": "A machine-readable failure.\n\n``retryable`` is the caller's cue, not a promise: it says a retry is *permitted*,\nnot that it will succeed.",
+      "properties": {
+        "details": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JSONValue"
+          },
+          "title": "Details",
+          "type": "object"
+        },
+        "error_code": {
+          "$ref": "#/$defs/ErrorCode"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "raised_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Raised By"
+        },
+        "remediation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Remediation"
+        },
+        "retryable": {
+          "default": false,
+          "title": "Retryable",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "error_code",
+        "message"
+      ],
+      "title": "StructuredError",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "What a heavy runtime reports back.\n\n``stdout_tail``, ``stderr_tail``, and ``duration_ms`` are filled in by the *runner*,\nnot by the sidecar. A process should not be asked to tail its own logs or time\nitself: those are the caller's observations, and a sidecar that reported them could\nmisreport them \u2014 including by omission, when it is the hang that needs explaining.",
+  "properties": {
+    "contract_version": {
+      "const": "1",
+      "default": "1",
+      "title": "Contract Version",
+      "type": "string"
+    },
+    "duration_ms": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Duration Ms",
+      "type": "integer"
+    },
+    "error": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/StructuredError"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "metrics": {
+      "additionalProperties": {
+        "$ref": "#/$defs/JSONValue"
+      },
+      "title": "Metrics",
+      "type": "object"
+    },
+    "outputs": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ArtifactRef"
+      },
+      "title": "Outputs",
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/SidecarStatus"
+    },
+    "stderr_tail": {
+      "default": "",
+      "title": "Stderr Tail",
+      "type": "string"
+    },
+    "stdout_tail": {
+      "default": "",
+      "title": "Stdout Tail",
+      "type": "string"
+    },
+    "versions": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Versions",
+      "type": "object"
+    }
+  },
+  "required": [
+    "status"
+  ],
+  "title": "SidecarResult",
+  "type": "object"
+}

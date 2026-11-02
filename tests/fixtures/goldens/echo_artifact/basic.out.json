@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "output": {
+    "artifact_id": "${seq}",
+    "artifact_type": "fasta",
+    "summary": "${seq} [fasta] 11 B sha256:9dd096c1… via bioflow@0.1.0"
+  },
+  "error": null
+}

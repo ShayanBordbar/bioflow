@@ -1,0 +1,21 @@
+{
+  "ok": false,
+  "output": null,
+  "error": {
+    "error_code": "VALIDATION_FAILED",
+    "message": "invalid arguments for 'handoff': to: Field required",
+    "remediation": "Correct the listed fields and call the tool again.",
+    "details": {
+      "tool": "handoff",
+      "errors": [
+        {
+          "loc": "to",
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "retryable": false,
+    "raised_by": "bioflow.core.registry"
+  }
+}

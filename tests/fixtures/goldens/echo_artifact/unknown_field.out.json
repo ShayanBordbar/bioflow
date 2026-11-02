@@ -1,0 +1,21 @@
+{
+  "ok": false,
+  "output": null,
+  "error": {
+    "error_code": "VALIDATION_FAILED",
+    "message": "invalid arguments for 'echo_artifact': verbose: Extra inputs are not permitted",
+    "remediation": "Correct the listed fields and call the tool again.",
+    "details": {
+      "tool": "echo_artifact",
+      "errors": [
+        {
+          "loc": "verbose",
+          "msg": "Extra inputs are not permitted",
+          "type": "extra_forbidden"
+        }
+      ]
+    },
+    "retryable": false,
+    "raised_by": "bioflow.core.registry"
+  }
+}

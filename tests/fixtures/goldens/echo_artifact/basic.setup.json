@@ -1,0 +1,10 @@
+{
+  "artifacts": [
+    {
+      "as": "seq",
+      "content": ">seq1\nACGT\n",
+      "artifact_type": "fasta",
+      "produced_by": "bioflow@0.1.0"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "output": {
+    "reason": "The organism is not stated and the decision depends on it.",
+    "blocking_question": null
+  },
+  "error": null
+}

@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "output": {
+    "reason": "The metadata is equally consistent with RNA-seq and with MPRA.",
+    "blocking_question": "Was a barcode-to-oligo association library sequenced for this study?"
+  },
+  "error": null
+}
